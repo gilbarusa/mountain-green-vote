@@ -41,7 +41,7 @@
   .actions{text-align:center;margin-top:32px}
   .btn{background:#1a5e2a;color:#fff;border:0;border-radius:6px;padding:13px 26px;font-size:16px;font-family:inherit;cursor:pointer;font-weight:bold}
   .btn:hover{background:#144a21}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn:disabled{background:#9aa49c !important;color:#eee !important;cursor:wait;border-color:#9aa49c !important}
   .btn.ghost{background:#fff;color:#1a5e2a;border:1px solid #1a5e2a}
   .msg{padding:11px 14px;border-radius:6px;font-size:14.5px;margin-bottom:16px}
   .msg.err{background:#fbeaea;color:#922;border:1px solid #e6c2c2}
@@ -261,11 +261,11 @@ async function buildDoc(units){
   for(let i=0;i<units.length;i++){
     holder.innerHTML=ballotMarkup(units[i]);
     const canvas=await html2canvas(holder.firstElementChild,{scale:2,backgroundColor:'#fff'});
-    const img=canvas.toDataURL('image/png');
+    const img=canvas.toDataURL('image/jpeg',0.85); // JPEG = far smaller payload → faster email
     let w=pw-60, h=canvas.height*(w/canvas.width);
     if(h>ph-60){h=ph-60;w=canvas.width*(h/canvas.height);}
     if(i>0)doc.addPage();
-    doc.addImage(img,'PNG',(pw-w)/2,30,w,h);
+    doc.addImage(img,'JPEG',(pw-w)/2,30,w,h);
   }
   document.body.removeChild(holder);
   return doc;
@@ -291,30 +291,31 @@ function buildPrintControls(){
 function targetUnits(){const p=$('unitPick');return (p&&p.value!=='__all')?[p.value]:lastUnits;}
 
 async function saveAsPdf(){
-  const btn=$('savePdf');btn.disabled=true;btn.textContent='Building PDF…';
+  const btn=$('savePdf');const eb=$('emailBtn');
+  btn.disabled=true;if(eb)eb.disabled=true;btn.textContent='Building PDF…';
   try{
     const units=targetUnits();
     const doc=await buildDoc(units);
     doc.save('Mountain-Green-Ballot-'+lastName.replace(/\s+/g,'-')+'.pdf');
     try{apiPost({action:'markPrinted',units:units});}catch(e){}
   }catch(e){alert('Could not build PDF: '+e);}
-  btn.disabled=false;btn.textContent='Save ballot as PDF';
+  btn.disabled=false;if(eb)eb.disabled=false;btn.textContent='Save ballot as PDF';
 }
 
 async function emailBallot(){
   const st=$('emailStatus');const btn=$('emailBtn');
-  const cc=$('ccEmail').value.trim();
-  btn.disabled=true;btn.textContent='Sending…';st.textContent='Building and sending ballot…';
+  const cc=$('ccEmail').value.trim();const sb=$('savePdf');
+  btn.disabled=true;if(sb)sb.disabled=true;btn.textContent='Sending…';st.textContent='Building and sending ballot… this can take up to a minute, please wait.';
   try{
     const units=lastUnits; // email always sends the full submission
     const doc=await buildDoc(units);
     const b64=doc.output('datauristring').split(',')[1];
     const r=await apiPost({action:'email',submissionId:lastSubmissionId,cc:cc,
                            filename:'Mountain-Green-Ballot-'+lastName.replace(/\s+/g,'-')+'.pdf',pdfBase64:b64});
-    if(r.ok){st.innerHTML='&#10003; Ballot emailed to <b>'+esc(r.to)+'</b>'+(cc?' (copy to '+esc(cc)+')':'')+'.';}
+    if(r.ok){st.innerHTML='&#10003; Ballot emailed to <b>'+esc(r.to)+'</b>'+(cc?' (copy to '+esc(cc)+')':'')+'.';btn.textContent='Emailed ✓';return;}
     else{st.textContent='Email failed: '+(r.error||'unknown error');}
   }catch(e){st.textContent='Email error: '+e;}
-  btn.disabled=false;btn.textContent='Save & Email ballot';
+  btn.disabled=false;if(sb)sb.disabled=false;btn.textContent='Save & Email ballot';
 }
 </script>
 </body>
