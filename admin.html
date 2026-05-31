@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mountain Green — Election Admin</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f4f5f3;color:#222}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 18px 60px}
+  h1{font-size:20px;color:#244f2d}
+  .card{background:#fff;border:1px solid #e2e2dc;border-radius:10px;padding:20px;margin-bottom:18px}
+  input[type=password]{padding:11px;font-size:16px;border:1px solid #ccc;border-radius:8px;width:240px}
+  .btn{background:#2f6b3c;color:#fff;border:0;border-radius:8px;padding:11px 18px;font-size:15px;cursor:pointer;font-weight:600}
+  .btn:hover{background:#244f2d}
+  .err{color:#a22;font-size:14px;margin-top:8px}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border:1px solid #e6e6df;padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#eef2ee;color:#244f2d}
+  tr:nth-child(even){background:#fafafa}
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600}
+  .yes{background:#e3f3e6;color:#246b30}
+  .no{background:#f3e3e3;color:#8a3030}
+  .sig{height:34px}
+  .bar{margin:8px 0}
+  .track{background:#eee;border-radius:6px;height:24px;overflow:hidden}
+  .fill{background:#2f6b3c;height:100%;border-radius:6px}
+  .pct{float:right;font-size:13px;color:#555}
+  .name{font-size:14px;margin-bottom:3px}
+  .meta{font-size:13px;color:#666;margin-bottom:12px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pill{background:#eef2ee;border-radius:20px;padding:6px 12px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mountain Green Condominium — Election Admin</h1>
+
+  <div class="card" id="loginCard">
+    <p>Enter the admin password to view results.</p>
+    <input type="password" id="pw" placeholder="Password" autofocus>
+    <button class="btn" id="login">View votes</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div id="dash" style="display:none">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h1 style="margin:0">Results</h1>
+        <button class="btn" id="refresh">Refresh</button>
+      </div>
+      <div class="row" id="summary" style="margin:10px 0 16px"></div>
+      <div id="bars"></div>
+    </div>
+
+    <div class="card">
+      <h1>Ballots</h1>
+      <div id="tableWrap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====== CONFIG ====== */
+const API_URL = 'PASTE_YOUR_WEB_APP_URL_HERE'; // same /exec URL as index.html
+/* ==================== */
+
+let PW='';
+function $(id){return document.getElementById(id)}
+
+$('login').onclick=load;
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')load();});
+$('refresh') && ($('refresh').onclick=()=>render());
+
+async function load(){
+  PW=$('pw').value;
+  $('err').textContent='';
+  if(API_URL.indexOf('PASTE')!==-1){$('err').textContent='Setup incomplete: API URL not configured.';return;}
+  await render();
+}
+
+async function render(){
+  try{
+    const res=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'admin',password:PW})});
+    const data=await res.json();
+    if(!data.ok){$('err').textContent=data.error||'Login failed.';return;}
+    $('loginCard').style.display='none';
+    $('dash').style.display='block';
+    drawResults(data.results);
+    drawTable(data.rows);
+  }catch(e){$('err').textContent='Network error: '+e;}
+}
+
+function drawResults(r){
+  const total=Object.values(r.tallies).reduce((a,b)=>a+b,0)||1;
+  const bars=$('bars'); bars.innerHTML='';
+  r.candidates.forEach(c=>{
+    const n=r.tallies[c]; const pct=Math.round((n/total)*100);
+    const d=document.createElement('div');d.className='bar';
+    d.innerHTML='<div class="name">'+c+'<span class="pct">'+pct+'% &nbsp;('+n+' votes)</span></div>'+
+                '<div class="track"><div class="fill" style="width:'+pct+'%"></div></div>';
+    bars.appendChild(d);
+  });
+  $('summary').innerHTML='<span class="pill"><b>'+r.ballots+'</b> ballots cast</span>';
+}
+
+function drawTable(rows){
+  if(!rows.length){$('tableWrap').innerHTML='<p>No ballots yet.</p>';return;}
+  let h='<table><thead><tr>'+
+    '<th>#</th><th>Voter name</th><th>Unit</th><th>Voted for</th><th>Signed</th><th>Printed</th><th>Signature</th><th>Time</th>'+
+    '</tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    const t=r.timestamp?new Date(r.timestamp).toLocaleString():'';
+    h+='<tr>'+
+      '<td>'+(i+1)+'</td>'+
+      '<td>'+esc(r.voter_name)+'</td>'+
+      '<td><b>'+esc(r.unit_number)+'</b></td>'+
+      '<td>'+esc(r.votes)+'</td>'+
+      '<td>'+badge(r.signed)+'</td>'+
+      '<td>'+badge(r.printed)+'</td>'+
+      '<td>'+(r.signature?'<img class="sig" src="'+r.signature+'">':'—')+'</td>'+
+      '<td>'+t+'</td>'+
+      '</tr>';
+  });
+  h+='</tbody></table>';
+  $('tableWrap').innerHTML=h;
+}
+function badge(v){const y=String(v).toLowerCase()==='yes';return '<span class="badge '+(y?'yes':'no')+'">'+(y?'Yes':'No')+'</span>';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+</script>
+</body>
+</html>
