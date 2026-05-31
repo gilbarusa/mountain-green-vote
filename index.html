@@ -3,48 +3,58 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Mountain Green Condominium — 2026 Board Election</title>
+<title>Official Absentee Ballot — Mountain Green Condominium</title>
 <style>
-  :root{
-    --green:#2f6b3c; --green-d:#244f2d; --cream:#f6f4ec; --ink:#222; --line:#d9d4c4;
-  }
   *{box-sizing:border-box}
-  body{margin:0;font-family:Georgia,"Times New Roman",serif;background:var(--cream);color:var(--ink);line-height:1.5}
-  .wrap{max-width:680px;margin:0 auto;padding:24px 18px 64px}
-  header{text-align:center;border-bottom:3px solid var(--green);padding-bottom:16px;margin-bottom:20px}
-  header h1{font-size:22px;margin:0 0 6px;color:var(--green-d)}
-  header p{margin:0;font-size:14px;color:#555}
-  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-  h2{font-size:16px;margin:0 0 12px;color:var(--green-d)}
-  .hint{font-size:13px;color:#666;margin:0 0 14px}
-  label.cand{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;cursor:pointer;font-size:17px;transition:.15s}
-  label.cand:hover{border-color:var(--green)}
-  label.cand.sel{background:#eef5ef;border-color:var(--green)}
-  label.cand input{width:20px;height:20px;accent-color:var(--green)}
-  input[type=text]{width:100%;padding:11px 12px;font-size:16px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
-  .unit-row{display:flex;gap:8px;margin-bottom:8px}
-  .unit-row input{flex:1}
-  .btn{background:var(--green);color:#fff;border:0;border-radius:8px;padding:12px 18px;font-size:16px;font-family:inherit;cursor:pointer;font-weight:bold}
-  .btn:hover{background:var(--green-d)}
+  body{margin:0;font-family:"Times New Roman",Georgia,serif;background:#e9e9e9;color:#000;line-height:1.55}
+  .wrap{max-width:740px;margin:0 auto;padding:24px 14px 64px}
+  .sheet{background:#fff;border:1px solid #ccc;border-radius:4px;padding:48px 54px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+  h1{font-size:19px;text-align:center;font-weight:bold;margin:0 0 22px;line-height:1.4;text-transform:uppercase}
+  h2{font-size:16px;font-weight:bold;margin:0 0 8px}
+  ol.instr{padding-left:22px;margin:0 0 20px}
+  ol.instr li{margin-bottom:8px;font-size:15.5px}
+  .voteline{font-style:italic;font-size:16px;margin:18px 0 14px}
+  .voteline b{font-weight:bold}
+  /* candidate rows */
+  .cand{font-size:18px;margin:9px 0;cursor:pointer;user-select:none;display:flex;align-items:baseline;gap:4px}
+  .cand .blank{display:inline-block;width:46px;border-bottom:1.5px solid #000;text-align:center;font-weight:bold;font-size:18px;line-height:1.2;margin-right:6px;flex:0 0 auto}
+  .cand:hover .blank{background:#f3f7f3}
+  .cand.sel .blank{color:#1a5e2a}
+  .cand.locked{opacity:.5;cursor:not-allowed}
+  /* fill-in sentence */
+  .stmt{font-size:16.5px;margin:26px 0 8px}
+  .ink{border:0;border-bottom:1.5px solid #000;font-family:inherit;font-size:16px;padding:1px 4px;background:transparent;min-width:60px}
+  .ink:focus{outline:none;background:#f3f7f3}
+  #nameInk{min-width:330px}
+  .unitInput{min-width:120px}
+  .unit-extra{margin:10px 0 0}
+  .unit-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+  .addUnit{background:none;border:0;color:#1a5e2a;font-family:inherit;font-size:14px;cursor:pointer;text-decoration:underline;padding:4px 0}
+  .rmUnit{background:none;border:0;color:#a33;cursor:pointer;font-size:16px}
+  /* signature */
+  .sigblock{margin-top:30px}
+  .sigwrap{border-bottom:1.5px solid #000;background:#fff;width:360px;max-width:100%}
+  canvas{display:block;width:100%;height:90px;touch-action:none}
+  .siglabel{font-size:16px;margin-top:4px}
+  .clearSig{background:none;border:0;color:#a33;font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline;margin-top:6px;padding:0}
+  /* actions */
+  .actions{text-align:center;margin-top:32px}
+  .btn{background:#1a5e2a;color:#fff;border:0;border-radius:6px;padding:13px 26px;font-size:16px;font-family:inherit;cursor:pointer;font-weight:bold}
+  .btn:hover{background:#144a21}
   .btn:disabled{opacity:.5;cursor:not-allowed}
-  .btn.ghost{background:#fff;color:var(--green-d);border:1px solid var(--green)}
-  .btn.sm{padding:8px 12px;font-size:14px}
-  .btn.danger{background:#fff;color:#a33;border:1px solid #d7b3b3}
-  .sigwrap{border:1px dashed var(--line);border-radius:8px;background:#fdfdfb}
-  canvas{display:block;width:100%;height:170px;touch-action:none;border-radius:8px}
-  .msg{padding:12px 14px;border-radius:8px;font-size:14px;margin-bottom:14px}
+  .btn.ghost{background:#fff;color:#1a5e2a;border:1px solid #1a5e2a}
+  .msg{padding:11px 14px;border-radius:6px;font-size:14.5px;margin-bottom:16px}
   .msg.err{background:#fbeaea;color:#922;border:1px solid #e6c2c2}
-  .msg.ok{background:#eaf5ec;color:#256;border:1px solid #bfe0c6}
-  .bar{margin:10px 0}
-  .bar .name{font-size:14px;margin-bottom:4px}
-  .track{background:#eee;border-radius:6px;height:26px;overflow:hidden}
-  .fill{background:var(--green);height:100%;border-radius:6px;transition:width .6s;min-width:2px}
-  .pct{font-size:13px;color:#555;float:right}
-  footer{text-align:center;font-size:12px;color:#999;margin-top:30px}
-  .center{text-align:center}
-  .small{font-size:12px;color:#888}
-  select{padding:10px;font-size:15px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
-  /* print ballot (hidden on screen) */
+  /* results / confirmation */
+  .bar{margin:12px 0}
+  .bar .name{font-size:15px;margin-bottom:4px}
+  .track{background:#e6e6e6;border-radius:6px;height:26px;overflow:hidden}
+  .fill{background:#1a5e2a;height:100%;border-radius:6px;transition:width .6s;min-width:2px}
+  .pct{float:right;font-size:14px;color:#444}
+  select{padding:9px;font-size:15px;border:1px solid #bbb;border-radius:6px;font-family:inherit}
+  .small{font-size:13px;color:#666}
+  @media(max-width:560px){.sheet{padding:30px 22px}#nameInk{min-width:180px}h1{font-size:16px}}
+  /* print ballot */
   #printArea{display:none}
   @media print{
     body *{visibility:hidden}
@@ -56,228 +66,178 @@
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Mountain Green Condominium</h1>
-    <p>Official Ballot — 2026 Election of Directors · June 6th, 2026</p>
-  </header>
 
-  <!-- VOTING FORM -->
+  <!-- ===== THE BALLOT ===== -->
   <div id="formView">
     <div id="msg"></div>
+    <div class="sheet">
+      <h1>Official Absentee Ballot for the Election of Directors by Mountain Green Condominium Unit Owners on June 6th, 2026</h1>
 
-    <div class="card">
-      <h2>Vote for two candidates</h2>
-      <p class="hint">Select exactly two. Your name is recorded for verification but kept anonymous in published results.</p>
-      <div id="cands"></div>
-    </div>
+      <h2>Instructions:</h2>
+      <ol class="instr" type="A">
+        <li>Place an &ldquo;X&rdquo; on the blank line next to the candidates you want to vote for.</li>
+        <li>Complete the section of the ballot identifying yourself and the unit(s) that you own.</li>
+        <li>Sign the ballot.</li>
+        <li>Please know that ONLY one ballot for each unit will be accepted for counting, regardless of the number of owners for any given unit. If two ballots are received that are inconsistent with each other, both ballots will be invalidated.</li>
+        <li>Scan or take a photo of your completed ballot and email it to: <b>Jeremiah.McAlpine@fsresidential.com</b> no later than June 6th @ 2:00PM to be counted.</li>
+      </ol>
 
-    <div class="card">
-      <h2>Your name</h2>
-      <input type="text" id="voterName" placeholder="Full name (print)" autocomplete="name">
-    </div>
+      <p class="voteline">Vote for <b>two</b> candidates.</p>
 
-    <div class="card">
-      <h2>Unit number(s)</h2>
-      <p class="hint">One ballot per unit. If you own more than one unit, add each — your vote above applies to all of them.</p>
-      <div id="units"></div>
-      <button class="btn ghost sm" id="addUnit" type="button">+ I own another unit</button>
-    </div>
-
-    <div class="card">
-      <h2>Signature</h2>
-      <p class="hint">Sign below with your finger or mouse.</p>
-      <div class="sigwrap"><canvas id="sig"></canvas></div>
-      <div class="center" style="margin-top:8px">
-        <button class="btn danger sm" id="clearSig" type="button">Clear signature</button>
+      <div id="cands">
+        <div class="cand" data-cand="Sean Allen"><span class="blank">&nbsp;</span> 1. Sean Allen</div>
+        <div class="cand" data-cand="Eric Hansell"><span class="blank">&nbsp;</span> 2. Eric Hansell</div>
+        <div class="cand" data-cand="Jeff Steinberg"><span class="blank">&nbsp;</span> 3. Jeff Steinberg</div>
+        <div class="cand" data-cand="James Thyne"><span class="blank">&nbsp;</span> 4. James Thyne</div>
       </div>
-    </div>
 
-    <div class="center">
-      <button class="btn" id="submit" type="button">Submit ballot</button>
+      <p class="stmt">
+        I, <input type="text" id="nameInk" class="ink" placeholder="print name" autocomplete="name"> (print name), an
+        owner of condominium Unit Number(s) <input type="text" class="ink unitInput" placeholder="unit no.">
+        in the Mountain Green Condominium Association, hereby vote this ballot for the 2026 election of directors.
+      </p>
+
+      <div class="unit-extra">
+        <div id="extraUnits"></div>
+        <button class="addUnit" id="addUnit" type="button">+ I own another unit</button>
+      </div>
+
+      <div class="sigblock">
+        <div class="sigwrap"><canvas id="sig"></canvas></div>
+        <div class="siglabel">Signature of Unit Owner</div>
+        <button class="clearSig" id="clearSig" type="button">Clear signature</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="submit" type="button">Submit ballot</button>
+      </div>
     </div>
   </div>
 
-  <!-- CONFIRMATION -->
+  <!-- ===== CONFIRMATION ===== -->
   <div id="doneView" style="display:none">
-    <div class="card">
-      <h2>Ballot submitted ✓</h2>
-      <p id="doneMsg" class="hint"></p>
-      <h2 style="margin-top:18px">Print your ballot</h2>
-      <p class="hint">Print a signed copy for your records or to email in.</p>
-      <div id="printControls" class="center"></div>
-    </div>
-
-    <div class="card">
-      <h2>Live results</h2>
-      <p class="hint">Share of votes per candidate.</p>
+    <div class="sheet">
+      <h1 style="text-transform:none">Ballot submitted &#10003;</h1>
+      <p id="doneMsg" class="small"></p>
+      <h2 style="margin-top:20px">Print your ballot</h2>
+      <p class="small">Print a signed copy for your records or to email in.</p>
+      <div id="printControls" style="text-align:center;margin:12px 0"></div>
+      <h2 style="margin-top:24px">Live results</h2>
+      <p class="small">Share of votes per candidate.</p>
       <div id="results"></div>
     </div>
   </div>
 
-  <footer>Mountain Green Condominium Association · Confidential</footer>
 </div>
 
 <div id="printArea"></div>
 
 <script>
 /* ====== CONFIG ====== */
-const API_URL = 'https://script.google.com/macros/s/AKfycbx9dbmzQBe0Ho7NeVZ-M6q-U7nd6ikC-x6ahW93rls8uhYbkUaGzsnRVRn7ZzXZSzY3/exec'; // Apps Script web app
+const API_URL = 'https://script.google.com/macros/s/AKfycbx9dbmzQBe0Ho7NeVZ-M6q-U7nd6ikC-x6ahW93rls8uhYbkUaGzsnRVRn7ZzXZSzY3/exec';
 const CANDIDATES = ['Sean Allen', 'Eric Hansell', 'Jeff Steinberg', 'James Thyne'];
 const MAX_VOTES = 2;
 /* ==================== */
 
-let lastUnits = [], lastVotes = [], lastName = '', lastSig = '';
-
+let lastUnits=[], lastVotes=[], lastName='', lastSig='';
 function $(id){return document.getElementById(id)}
 function showMsg(t,type){const m=$('msg');m.innerHTML=t?'<div class="msg '+type+'">'+t+'</div>':'';if(t)window.scrollTo({top:0,behavior:'smooth'});}
 
-/* ---- candidates ---- */
-const candBox = $('cands');
-CANDIDATES.forEach((c,i)=>{
-  const l=document.createElement('label');l.className='cand';
-  l.innerHTML='<input type="checkbox" value="'+c+'"><span>'+(i+1)+'. '+c+'</span>';
-  candBox.appendChild(l);
+/* ---- candidate selection (click blank to place X) ---- */
+const candBox=$('cands');
+candBox.addEventListener('click',e=>{
+  const row=e.target.closest('.cand'); if(!row||row.classList.contains('locked'))return;
+  const sel=candBox.querySelectorAll('.cand.sel');
+  if(!row.classList.contains('sel') && sel.length>=MAX_VOTES) return;
+  row.classList.toggle('sel');
+  row.querySelector('.blank').textContent=row.classList.contains('sel')?'X':' ';
+  const now=candBox.querySelectorAll('.cand.sel').length;
+  candBox.querySelectorAll('.cand').forEach(c=>{
+    c.classList.toggle('locked', !c.classList.contains('sel') && now>=MAX_VOTES);
+  });
 });
-candBox.addEventListener('change',()=>{
-  const boxes=[...candBox.querySelectorAll('input')];
-  const sel=boxes.filter(b=>b.checked);
-  boxes.forEach(b=>{b.disabled=(!b.checked && sel.length>=MAX_VOTES);b.closest('.cand').classList.toggle('sel',b.checked);});
-});
+function selectedVotes(){return [...candBox.querySelectorAll('.cand.sel')].map(c=>c.dataset.cand);}
 
-/* ---- units ---- */
-function addUnitRow(){
+/* ---- extra units ---- */
+$('addUnit').onclick=()=>{
   const div=document.createElement('div');div.className='unit-row';
-  div.innerHTML='<input type="text" class="unitInput" placeholder="Unit number (e.g. 1F9)">'+
-                '<button class="btn danger sm rmUnit" type="button" title="Remove">✕</button>';
-  $('units').appendChild(div);
-  div.querySelector('.rmUnit').onclick=()=>{if($('units').children.length>1)div.remove();};
-}
-addUnitRow();
-$('addUnit').onclick=addUnitRow;
+  div.innerHTML='Additional Unit Number: <input type="text" class="ink unitInput" placeholder="unit no.">'+
+                '<button class="rmUnit" type="button" title="Remove">&#10005;</button>';
+  $('extraUnits').appendChild(div);
+  div.querySelector('.rmUnit').onclick=()=>div.remove();
+};
 
 /* ---- signature pad ---- */
-const canvas=$('sig'); const ctx=canvas.getContext('2d'); let drawing=false, hasSig=false;
-function fitCanvas(){
-  const r=canvas.getBoundingClientRect();
-  const tmp=canvas.toDataURL();
-  canvas.width=r.width; canvas.height=170;
-  ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.strokeStyle='#13315c';
-  if(hasSig){const img=new Image();img.onload=()=>ctx.drawImage(img,0,0,canvas.width,canvas.height);img.src=tmp;}
-}
+const canvas=$('sig'),ctx=canvas.getContext('2d');let drawing=false,hasSig=false;
+function fitCanvas(){const r=canvas.getBoundingClientRect();const tmp=hasSig?canvas.toDataURL():null;canvas.width=r.width;canvas.height=90;ctx.lineWidth=2.2;ctx.lineCap='round';ctx.strokeStyle='#13315c';if(tmp){const i=new Image();i.onload=()=>ctx.drawImage(i,0,0,canvas.width,canvas.height);i.src=tmp;}}
 function pos(e){const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};}
 function start(e){drawing=true;hasSig=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();}
 function move(e){if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();}
 function end(){drawing=false;}
-canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',move);
-window.addEventListener('mouseup',end);
-canvas.addEventListener('touchstart',start,{passive:false});canvas.addEventListener('touchmove',move,{passive:false});
-canvas.addEventListener('touchend',end);
+canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',move);window.addEventListener('mouseup',end);
+canvas.addEventListener('touchstart',start,{passive:false});canvas.addEventListener('touchmove',move,{passive:false});canvas.addEventListener('touchend',end);
 $('clearSig').onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);hasSig=false;};
-setTimeout(fitCanvas,50);
+setTimeout(fitCanvas,50);window.addEventListener('resize',fitCanvas);
 
-/* ---- API helpers ---- */
-async function apiPost(payload){
-  const res=await fetch(API_URL,{method:'POST',body:JSON.stringify(payload)});
-  return res.json();
-}
-async function apiResults(){
-  const res=await fetch(API_URL+'?action=results');
-  return res.json();
-}
+/* ---- API ---- */
+async function apiPost(p){const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(p)});return r.json();}
+async function apiResults(){const r=await fetch(API_URL+'?action=results');return r.json();}
 
 /* ---- submit ---- */
 $('submit').onclick=async()=>{
   showMsg('','');
-  const votes=[...candBox.querySelectorAll('input:checked')].map(b=>b.value);
-  const name=$('voterName').value.trim();
+  const votes=selectedVotes();
+  const name=$('nameInk').value.trim();
   const units=[...document.querySelectorAll('.unitInput')].map(i=>i.value.trim()).filter(Boolean);
   const uniqUnits=[...new Set(units.map(u=>u.toUpperCase()))].map(u=>units.find(x=>x.toUpperCase()===u));
 
-  if(votes.length!==MAX_VOTES) return showMsg('Please select exactly two candidates.','err');
-  if(!name)                    return showMsg('Please enter your name.','err');
-  if(!uniqUnits.length)        return showMsg('Please enter at least one unit number.','err');
-  if(!hasSig)                  return showMsg('Please sign the ballot.','err');
-  if(API_URL.indexOf('PASTE')!==-1) return showMsg('Setup incomplete: the API URL has not been configured yet.','err');
+  if(votes.length!==MAX_VOTES) return showMsg('Please place an X next to exactly two candidates.','err');
+  if(!name)             return showMsg('Please print your name.','err');
+  if(!uniqUnits.length) return showMsg('Please enter at least one unit number.','err');
+  if(!hasSig)           return showMsg('Please sign the ballot.','err');
 
   const sig=canvas.toDataURL('image/png');
-  $('submit').disabled=true; $('submit').textContent='Submitting…';
+  $('submit').disabled=true;$('submit').textContent='Submitting…';
   try{
     const r=await apiPost({action:'submit',name:name,units:uniqUnits,votes:votes,signature:sig});
-    if(!r.ok){
-      $('submit').disabled=false; $('submit').textContent='Submit ballot';
-      let m=r.error||'Submission failed.';
-      if(r.rejected&&r.rejected.length) m+=' Unit(s) already voted: '+r.rejected.join(', ');
-      return showMsg(m,'err');
-    }
-    lastUnits=r.accepted; lastVotes=votes; lastName=name; lastSig=sig;
+    if(!r.ok){$('submit').disabled=false;$('submit').textContent='Submit ballot';let m=r.error||'Submission failed.';if(r.rejected&&r.rejected.length)m+=' Unit(s) already voted: '+r.rejected.join(', ');return showMsg(m,'err');}
+    lastUnits=r.accepted;lastVotes=votes;lastName=name;lastSig=sig;
     let note='Recorded for unit(s): <b>'+r.accepted.join(', ')+'</b>.';
-    if(r.rejected&&r.rejected.length) note+=' Skipped (already voted): '+r.rejected.join(', ')+'.';
-    $('doneMsg').innerHTML=note;
-    buildPrintControls();
-    $('formView').style.display='none';
-    $('doneView').style.display='block';
-    window.scrollTo({top:0});
-    loadResults();
-  }catch(err){
-    $('submit').disabled=false; $('submit').textContent='Submit ballot';
-    showMsg('Network error: '+err+'. Please try again.','err');
-  }
+    if(r.rejected&&r.rejected.length)note+=' Skipped (already voted): '+r.rejected.join(', ')+'.';
+    $('doneMsg').innerHTML=note;buildPrintControls();
+    $('formView').style.display='none';$('doneView').style.display='block';window.scrollTo({top:0});loadResults();
+  }catch(err){$('submit').disabled=false;$('submit').textContent='Submit ballot';showMsg('Network error: '+err+'. Please try again.','err');}
 };
 
-/* ---- results graph (% only, no counts) ---- */
+/* ---- results (% only) ---- */
 async function loadResults(){
-  try{
-    const r=await apiResults();
-    const box=$('results'); box.innerHTML='';
+  try{const r=await apiResults();const box=$('results');box.innerHTML='';
     const total=Object.values(r.tallies).reduce((a,b)=>a+b,0)||1;
-    r.candidates.forEach(c=>{
-      const pct=Math.round((r.tallies[c]/total)*100);
-      const d=document.createElement('div');d.className='bar';
-      d.innerHTML='<div class="name">'+c+'<span class="pct">'+pct+'%</span></div>'+
-                  '<div class="track"><div class="fill" style="width:'+pct+'%"></div></div>';
-      box.appendChild(d);
-    });
+    r.candidates.forEach(c=>{const pct=Math.round((r.tallies[c]/total)*100);const d=document.createElement('div');d.className='bar';
+      d.innerHTML='<div class="name">'+c+'<span class="pct">'+pct+'%</span></div><div class="track"><div class="fill" style="width:'+pct+'%"></div></div>';box.appendChild(d);});
   }catch(e){$('results').innerHTML='<p class="small">Results unavailable right now.</p>';}
 }
 
 /* ---- print ballots ---- */
 function buildPrintControls(){
-  const box=$('printControls'); box.innerHTML='';
+  const box=$('printControls');box.innerHTML='';
   if(lastUnits.length>1){
     const sel=document.createElement('select');
-    sel.innerHTML='<option value="__all">All my units ('+lastUnits.length+')</option>'+
-                  lastUnits.map(u=>'<option value="'+u+'">Unit '+u+'</option>').join('');
+    sel.innerHTML='<option value="__all">All my units ('+lastUnits.length+')</option>'+lastUnits.map(u=>'<option value="'+u+'">Unit '+u+'</option>').join('');
     box.appendChild(sel);
-    const b=document.createElement('button');b.className='btn';b.style.marginLeft='8px';b.textContent='Print';
-    b.onclick=()=>doPrint(sel.value==='__all'?lastUnits:[sel.value]);
-    box.appendChild(b);
-  }else{
-    const b=document.createElement('button');b.className='btn';b.textContent='Print ballot';
-    b.onclick=()=>doPrint(lastUnits);
-    box.appendChild(b);
-  }
+    const b=document.createElement('button');b.className='btn';b.style.marginLeft='8px';b.textContent='Print';b.onclick=()=>doPrint(sel.value==='__all'?lastUnits:[sel.value]);box.appendChild(b);
+  }else{const b=document.createElement('button');b.className='btn';b.textContent='Print ballot';b.onclick=()=>doPrint(lastUnits);box.appendChild(b);}
 }
 function ballotHtml(unit){
-  const rows=CANDIDATES.map((c,i)=>{
-    const x=lastVotes.indexOf(c)!==-1?'X':'&nbsp;';
-    return '<div style="font-size:18px;margin:6px 0"><span style="display:inline-block;width:34px;border-bottom:1px solid #000;text-align:center;font-weight:bold">'+x+'</span> &nbsp;'+(i+1)+'. '+c+'</div>';
-  }).join('');
-  return '<div class="ballot" style="font-family:Georgia,serif;color:#000;max-width:680px;margin:0 auto">'+
-    '<h2 style="text-align:center">OFFICIAL BALLOT — ELECTION OF DIRECTORS<br>MOUNTAIN GREEN CONDOMINIUM · JUNE 6th, 2026</h2>'+
+  const rows=CANDIDATES.map((c,i)=>{const x=lastVotes.indexOf(c)!==-1?'X':'&nbsp;';
+    return '<div style="font-size:18px;margin:7px 0"><span style="display:inline-block;width:40px;border-bottom:1.5px solid #000;text-align:center;font-weight:bold">'+x+'</span> &nbsp;'+(i+1)+'. '+c+'</div>';}).join('');
+  return '<div class="ballot" style="font-family:\'Times New Roman\',serif;color:#000;max-width:700px;margin:0 auto">'+
+    '<h2 style="text-align:center;text-transform:uppercase">Official Absentee Ballot &mdash; Election of Directors<br>Mountain Green Condominium &middot; June 6th, 2026</h2>'+
     '<p style="font-style:italic"><b>Vote for two candidates.</b></p>'+rows+
-    '<p style="margin-top:24px">I, <b>'+lastName+'</b> (print name), an owner of condominium Unit Number(s) <b>'+unit+'</b> '+
-    'in the Mountain Green Condominium Association, hereby vote this ballot for the 2026 election of directors.</p>'+
-    '<div style="margin-top:18px"><img src="'+lastSig+'" style="height:70px;border-bottom:1px solid #000"><br>Signature of Unit Owner</div>'+
-    '</div>';
+    '<p style="margin-top:24px">I, <b>'+lastName+'</b> (print name), an owner of condominium Unit Number(s) <b>'+unit+'</b> in the Mountain Green Condominium Association, hereby vote this ballot for the 2026 election of directors.</p>'+
+    '<div style="margin-top:18px"><img src="'+lastSig+'" style="height:70px;border-bottom:1.5px solid #000"><br>Signature of Unit Owner</div></div>';
 }
-async function doPrint(units){
-  $('printArea').innerHTML=units.map(ballotHtml).join('');
-  // mark as printed (best-effort)
-  try{ apiPost({action:'markPrinted',units:units}); }catch(e){}
-  setTimeout(()=>window.print(),100);
-}
-
-window.addEventListener('resize',fitCanvas);
+async function doPrint(units){$('printArea').innerHTML=units.map(ballotHtml).join('');try{apiPost({action:'markPrinted',units:units});}catch(e){}setTimeout(()=>window.print(),100);}
 </script>
 </body>
 </html>
