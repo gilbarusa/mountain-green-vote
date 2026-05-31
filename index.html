@@ -119,8 +119,8 @@
     <div class="sheet">
       <h1 style="text-transform:none">Ballot submitted &#10003;</h1>
       <p id="doneMsg" class="small"></p>
-      <h2 style="margin-top:20px">Print your ballot</h2>
-      <p class="small">Print a signed copy for your records or to email in.</p>
+      <h2 style="margin-top:20px">Save &amp; email your ballot</h2>
+      <p class="small">Save a PDF of your completed ballot, and/or email it directly to the association.</p>
       <div id="printControls" style="text-align:center;margin:12px 0"></div>
       <h2 style="margin-top:24px">Live results</h2>
       <p class="small">Share of votes per candidate.</p>
@@ -130,12 +130,13 @@
 
 </div>
 
-<div id="printArea"></div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 /* ====== CONFIG ====== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbx9dbmzQBe0Ho7NeVZ-M6q-U7nd6ikC-x6ahW93rls8uhYbkUaGzsnRVRn7ZzXZSzY3/exec';
 const CANDIDATES = ['Sean Allen', 'Eric Hansell', 'Jeff Steinberg', 'James Thyne'];
+const RECIPIENT = 'Jeremiah.McAlpine@fsresidential.com';
 const MAX_VOTES = 2;
 /* ==================== */
 
@@ -218,26 +219,96 @@ async function loadResults(){
   }catch(e){$('results').innerHTML='<p class="small">Results unavailable right now.</p>';}
 }
 
-/* ---- print ballots ---- */
-function buildPrintControls(){
-  const box=$('printControls');box.innerHTML='';
-  if(lastUnits.length>1){
-    const sel=document.createElement('select');
-    sel.innerHTML='<option value="__all">All my units ('+lastUnits.length+')</option>'+lastUnits.map(u=>'<option value="'+u+'">Unit '+u+'</option>').join('');
-    box.appendChild(sel);
-    const b=document.createElement('button');b.className='btn';b.style.marginLeft='8px';b.textContent='Print';b.onclick=()=>doPrint(sel.value==='__all'?lastUnits:[sel.value]);box.appendChild(b);
-  }else{const b=document.createElement('button');b.className='btn';b.textContent='Print ballot';b.onclick=()=>doPrint(lastUnits);box.appendChild(b);}
-}
-function ballotHtml(unit){
+/* ---- full official ballot markup (one unit) ---- */
+function ballotMarkup(unit){
   const rows=CANDIDATES.map((c,i)=>{const x=lastVotes.indexOf(c)!==-1?'X':'&nbsp;';
-    return '<div style="font-size:18px;margin:7px 0"><span style="display:inline-block;width:40px;border-bottom:1.5px solid #000;text-align:center;font-weight:bold">'+x+'</span> &nbsp;'+(i+1)+'. '+c+'</div>';}).join('');
-  return '<div class="ballot" style="font-family:\'Times New Roman\',serif;color:#000;max-width:700px;margin:0 auto">'+
-    '<h2 style="text-align:center;text-transform:uppercase">Official Absentee Ballot &mdash; Election of Directors<br>Mountain Green Condominium &middot; June 6th, 2026</h2>'+
-    '<p style="font-style:italic"><b>Vote for two candidates.</b></p>'+rows+
-    '<p style="margin-top:24px">I, <b>'+lastName+'</b> (print name), an owner of condominium Unit Number(s) <b>'+unit+'</b> in the Mountain Green Condominium Association, hereby vote this ballot for the 2026 election of directors.</p>'+
-    '<div style="margin-top:18px"><img src="'+lastSig+'" style="height:70px;border-bottom:1.5px solid #000"><br>Signature of Unit Owner</div></div>';
+    return '<div style="font-size:17px;margin:8px 0;color:#000"><span style="display:inline-block;width:44px;border-bottom:1.5px solid #000;text-align:center;font-weight:bold">'+x+'</span> &nbsp;'+(i+1)+'. '+c+'</div>';}).join('');
+  return '<div style="font-family:\'Times New Roman\',Georgia,serif;color:#000;background:#fff;padding:46px 50px;width:720px;line-height:1.5">'+
+    '<h1 style="font-size:18px;text-align:center;font-weight:bold;text-transform:uppercase;margin:0 0 20px;line-height:1.4">Official Absentee Ballot for the Election of Directors by Mountain Green Condominium Unit Owners on June 6th, 2026</h1>'+
+    '<div style="font-size:16px;font-weight:bold;margin:0 0 6px">Instructions:</div>'+
+    '<div style="font-size:15px;margin:0 0 16px">'+
+      'A. Place an &ldquo;X&rdquo; on the blank line next to the candidates you want to vote for.<br>'+
+      'B. Complete the section of the ballot identifying yourself and the unit(s) that you own.<br>'+
+      'C. Sign the ballot.<br>'+
+      'D. Please know that ONLY one ballot for each unit will be accepted for counting, regardless of the number of owners for any given unit. If two ballots are received that are inconsistent with each other, both ballots will be invalidated.<br>'+
+      'E. Scan or take a photo of your completed ballot and email it to: <b>'+RECIPIENT+'</b> no later than June 6th @ 2:00PM to be counted.'+
+    '</div>'+
+    '<p style="font-style:italic;font-size:16px;margin:14px 0 10px"><b>Vote for two candidates.</b></p>'+
+    rows+
+    '<p style="font-size:16px;margin:24px 0 0">I, <b>'+esc(lastName)+'</b> (print name), an owner of condominium Unit Number(s) <b>'+esc(unit)+'</b> in the Mountain Green Condominium Association, hereby vote this ballot for the 2026 election of directors.</p>'+
+    '<div style="margin-top:26px"><img src="'+lastSig+'" style="height:64px"><div style="border-top:1.5px solid #000;width:360px;padding-top:3px;font-size:15px">Signature of Unit Owner</div></div>'+
+  '</div>';
 }
-async function doPrint(units){$('printArea').innerHTML=units.map(ballotHtml).join('');try{apiPost({action:'markPrinted',units:units});}catch(e){}setTimeout(()=>window.print(),100);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ---- build a multi-page PDF (one page per unit) ---- */
+async function buildDoc(units){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'pt',format:'letter'});
+  const holder=document.createElement('div');
+  holder.style.cssText='position:absolute;left:-99999px;top:0;width:720px;background:#fff';
+  document.body.appendChild(holder);
+  const pw=doc.internal.pageSize.getWidth(), ph=doc.internal.pageSize.getHeight();
+  for(let i=0;i<units.length;i++){
+    holder.innerHTML=ballotMarkup(units[i]);
+    const canvas=await html2canvas(holder.firstElementChild,{scale:2,backgroundColor:'#fff'});
+    const img=canvas.toDataURL('image/png');
+    let w=pw-60, h=canvas.height*(w/canvas.width);
+    if(h>ph-60){h=ph-60;w=canvas.width*(h/canvas.height);}
+    if(i>0)doc.addPage();
+    doc.addImage(img,'PNG',(pw-w)/2,30,w,h);
+  }
+  document.body.removeChild(holder);
+  return doc;
+}
+
+/* ---- confirmation controls: save + email ---- */
+function buildPrintControls(){
+  const box=$('printControls');
+  const opts=lastUnits.length>1
+    ? '<select id="unitPick" style="margin-bottom:12px"><option value="__all">All my units ('+lastUnits.length+')</option>'+lastUnits.map(u=>'<option value="'+u+'">Unit '+u+'</option>').join('')+'</select><br>'
+    : '';
+  box.innerHTML=opts+
+    '<button class="btn ghost" id="savePdf" type="button">Save ballot as PDF</button>'+
+    '<div style="margin-top:18px;text-align:left;max-width:420px;margin-left:auto;margin-right:auto">'+
+      '<div class="small" style="margin-bottom:6px">Email the signed ballot to:</div>'+
+      '<input type="text" id="toEmail" class="ink" style="width:100%;margin-bottom:8px" value="'+RECIPIENT+'">'+
+      '<input type="text" id="ccEmail" class="ink" style="width:100%;margin-bottom:10px" placeholder="your email (optional — get a copy)">'+
+      '<button class="btn" id="emailBtn" type="button">Save &amp; Email ballot</button>'+
+      '<div id="emailStatus" class="small" style="margin-top:8px"></div>'+
+    '</div>';
+  $('savePdf').onclick=saveAsPdf;
+  $('emailBtn').onclick=emailBallot;
+}
+function targetUnits(){const p=$('unitPick');return (p&&p.value!=='__all')?[p.value]:lastUnits;}
+
+async function saveAsPdf(){
+  const btn=$('savePdf');btn.disabled=true;btn.textContent='Building PDF…';
+  try{
+    const units=targetUnits();
+    const doc=await buildDoc(units);
+    doc.save('Mountain-Green-Ballot-'+lastName.replace(/\s+/g,'-')+'.pdf');
+    try{apiPost({action:'markPrinted',units:units});}catch(e){}
+  }catch(e){alert('Could not build PDF: '+e);}
+  btn.disabled=false;btn.textContent='Save ballot as PDF';
+}
+
+async function emailBallot(){
+  const st=$('emailStatus');const btn=$('emailBtn');
+  const to=$('toEmail').value.trim();const cc=$('ccEmail').value.trim();
+  if(!to){st.textContent='Enter a recipient email.';return;}
+  btn.disabled=true;btn.textContent='Sending…';st.textContent='Building and sending ballot…';
+  try{
+    const units=targetUnits();
+    const doc=await buildDoc(units);
+    const b64=doc.output('datauristring').split(',')[1];
+    const r=await apiPost({action:'email',to:to,cc:cc,name:lastName,units:units,
+                           filename:'Mountain-Green-Ballot-'+lastName.replace(/\s+/g,'-')+'.pdf',pdfBase64:b64});
+    if(r.ok){st.innerHTML='&#10003; Ballot emailed to <b>'+esc(r.to)+'</b>'+(cc?' (copy to '+esc(cc)+')':'')+'.';}
+    else{st.textContent='Email failed: '+(r.error||'unknown error');}
+  }catch(e){st.textContent='Email error: '+e;}
+  btn.disabled=false;btn.textContent='Save & Email ballot';
+}
 </script>
 </body>
 </html>
