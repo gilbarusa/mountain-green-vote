@@ -67,6 +67,13 @@
 <body>
 <div class="wrap">
 
+  <!-- ===== LIVE RESULTS (top frame) ===== -->
+  <div id="liveResults" class="sheet" style="margin-bottom:18px;padding:24px 30px">
+    <h2 style="text-align:center;margin-bottom:4px">Live Results</h2>
+    <p class="small" style="text-align:center;margin:0 0 14px">Share of votes cast so far</p>
+    <div id="topResults"><p class="small" style="text-align:center">Loading…</p></div>
+  </div>
+
   <!-- ===== THE BALLOT ===== -->
   <div id="formView">
     <div id="msg"></div>
@@ -220,13 +227,16 @@ $('submit').onclick=()=>doSubmit(false);
 $('justCast').onclick=()=>doSubmit(true);
 
 /* ---- results (% only) ---- */
-async function loadResults(){
-  try{const r=await apiResults();const box=$('results');box.innerHTML='';
-    const total=Object.values(r.tallies).reduce((a,b)=>a+b,0)||1;
-    r.candidates.forEach(c=>{const pct=Math.round((r.tallies[c]/total)*100);const d=document.createElement('div');d.className='bar';
-      d.innerHTML='<div class="name">'+c+'<span class="pct">'+pct+'%</span></div><div class="track"><div class="fill" style="width:'+pct+'%"></div></div>';box.appendChild(d);});
-  }catch(e){$('results').innerHTML='<p class="small">Results unavailable right now.</p>';}
+function renderResults(boxId,r){
+  const box=$(boxId);if(!box)return;box.innerHTML='';
+  const total=Object.values(r.tallies).reduce((a,b)=>a+b,0)||1;
+  r.candidates.forEach(c=>{const pct=Math.round((r.tallies[c]/total)*100);const d=document.createElement('div');d.className='bar';
+    d.innerHTML='<div class="name">'+c+'<span class="pct">'+pct+'%</span></div><div class="track"><div class="fill" style="width:'+pct+'%"></div></div>';box.appendChild(d);});
 }
+async function loadResults(){try{renderResults('results',await apiResults());}catch(e){$('results').innerHTML='<p class="small">Results unavailable right now.</p>';}}
+async function loadTopResults(){try{renderResults('topResults',await apiResults());}catch(e){$('topResults').innerHTML='<p class="small" style="text-align:center">Results unavailable right now.</p>';}}
+loadTopResults();
+setInterval(loadTopResults,30000); // refresh the top frame every 30s
 
 /* ---- full official ballot markup (one unit) ---- */
 function ballotMarkup(unit){
