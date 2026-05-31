@@ -110,6 +110,8 @@
 
       <div class="actions">
         <button class="btn" id="submit" type="button">Submit ballot</button>
+        <button class="btn ghost" id="justCast" type="button" style="margin-left:10px">Just Cast — I already voted</button>
+        <div class="small" style="margin-top:8px">Use &ldquo;Just Cast&rdquo; only if you already submitted your signed ballot to the association.</div>
       </div>
     </div>
   </div>
@@ -119,9 +121,11 @@
     <div class="sheet">
       <h1 style="text-transform:none">Ballot submitted &#10003;</h1>
       <p id="doneMsg" class="small"></p>
-      <h2 style="margin-top:20px">Save &amp; email your ballot</h2>
-      <p class="small">Save a PDF of your completed ballot, and/or email it directly to the association.</p>
-      <div id="printControls" style="text-align:center;margin:12px 0"></div>
+      <div id="saveEmailBlock">
+        <h2 style="margin-top:20px">Save &amp; email your ballot</h2>
+        <p class="small">Save a PDF of your completed ballot, and/or email it directly to the association.</p>
+        <div id="printControls" style="text-align:center;margin:12px 0"></div>
+      </div>
       <h2 style="margin-top:24px">Live results</h2>
       <p class="small">Share of votes per candidate.</p>
       <div id="results"></div>
@@ -184,8 +188,8 @@ setTimeout(fitCanvas,50);window.addEventListener('resize',fitCanvas);
 async function apiPost(p){const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(p)});return r.json();}
 async function apiResults(){const r=await fetch(API_URL+'?action=results');return r.json();}
 
-/* ---- submit ---- */
-$('submit').onclick=async()=>{
+/* ---- submit (full = with signature, quick = "Just Cast") ---- */
+async function doSubmit(quick){
   showMsg('','');
   const votes=selectedVotes();
   const name=$('nameInk').value.trim();
@@ -195,20 +199,25 @@ $('submit').onclick=async()=>{
   if(votes.length!==MAX_VOTES) return showMsg('Please place an X next to exactly two candidates.','err');
   if(!name)             return showMsg('Please print your name.','err');
   if(!uniqUnits.length) return showMsg('Please enter at least one unit number.','err');
-  if(!hasSig)           return showMsg('Please sign the ballot.','err');
+  if(!quick && !hasSig) return showMsg('Please sign the ballot (or use “Just Cast” if you already submitted a signed ballot).','err');
 
-  const sig=canvas.toDataURL('image/png');
-  $('submit').disabled=true;$('submit').textContent='Submitting…';
+  const sig=quick ? '' : canvas.toDataURL('image/png');
+  const btn=quick?$('justCast'):$('submit');const label=btn.textContent;
+  $('submit').disabled=true;$('justCast').disabled=true;btn.textContent='Submitting…';
   try{
     const r=await apiPost({action:'submit',name:name,units:uniqUnits,votes:votes,signature:sig});
-    if(!r.ok){$('submit').disabled=false;$('submit').textContent='Submit ballot';let m=r.error||'Submission failed.';if(r.rejected&&r.rejected.length)m+=' Unit(s) already voted: '+r.rejected.join(', ');return showMsg(m,'err');}
+    if(!r.ok){$('submit').disabled=false;$('justCast').disabled=false;btn.textContent=label;let m=r.error||'Submission failed.';if(r.rejected&&r.rejected.length)m+=' Unit(s) already voted: '+r.rejected.join(', ');return showMsg(m,'err');}
     lastUnits=r.accepted;lastVotes=votes;lastName=name;lastSig=sig;
-    let note='Recorded for unit(s): <b>'+r.accepted.join(', ')+'</b>.';
+    let note=(quick?'Vote cast for unit(s): <b>':'Recorded for unit(s): <b>')+r.accepted.join(', ')+'</b>.';
     if(r.rejected&&r.rejected.length)note+=' Skipped (already voted): '+r.rejected.join(', ')+'.';
-    $('doneMsg').innerHTML=note;buildPrintControls();
+    $('doneMsg').innerHTML=note;
+    if(quick){ $('saveEmailBlock').style.display='none'; }
+    else { $('saveEmailBlock').style.display='block'; buildPrintControls(); }
     $('formView').style.display='none';$('doneView').style.display='block';window.scrollTo({top:0});loadResults();
-  }catch(err){$('submit').disabled=false;$('submit').textContent='Submit ballot';showMsg('Network error: '+err+'. Please try again.','err');}
-};
+  }catch(err){$('submit').disabled=false;$('justCast').disabled=false;btn.textContent=label;showMsg('Network error: '+err+'. Please try again.','err');}
+}
+$('submit').onclick=()=>doSubmit(false);
+$('justCast').onclick=()=>doSubmit(true);
 
 /* ---- results (% only) ---- */
 async function loadResults(){
