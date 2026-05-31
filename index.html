@@ -140,11 +140,11 @@
 /* ====== CONFIG ====== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbx9dbmzQBe0Ho7NeVZ-M6q-U7nd6ikC-x6ahW93rls8uhYbkUaGzsnRVRn7ZzXZSzY3/exec';
 const CANDIDATES = ['Sean Allen', 'Eric Hansell', 'Jeff Steinberg', 'James Thyne'];
-const RECIPIENT = 'Jeremiah.McAlpine@fsresidential.com';
+const RECIPIENT = 'gilbarzeski@gmail.com'; // TEST recipient — change back to Jeremiah for production
 const MAX_VOTES = 2;
 /* ==================== */
 
-let lastUnits=[], lastVotes=[], lastName='', lastSig='';
+let lastUnits=[], lastVotes=[], lastName='', lastSig='', lastSubmissionId='';
 function $(id){return document.getElementById(id)}
 function showMsg(t,type){const m=$('msg');m.innerHTML=t?'<div class="msg '+type+'">'+t+'</div>':'';if(t)window.scrollTo({top:0,behavior:'smooth'});}
 
@@ -207,7 +207,7 @@ async function doSubmit(quick){
   try{
     const r=await apiPost({action:'submit',name:name,units:uniqUnits,votes:votes,signature:sig});
     if(!r.ok){$('submit').disabled=false;$('justCast').disabled=false;btn.textContent=label;let m=r.error||'Submission failed.';if(r.rejected&&r.rejected.length)m+=' Unit(s) already voted: '+r.rejected.join(', ');return showMsg(m,'err');}
-    lastUnits=r.accepted;lastVotes=votes;lastName=name;lastSig=sig;
+    lastUnits=r.accepted;lastVotes=votes;lastName=name;lastSig=sig;lastSubmissionId=r.submissionId||'';
     let note=(quick?'Vote cast for unit(s): <b>':'Recorded for unit(s): <b>')+r.accepted.join(', ')+'</b>.';
     if(r.rejected&&r.rejected.length)note+=' Skipped (already voted): '+r.rejected.join(', ')+'.';
     $('doneMsg').innerHTML=note;
@@ -280,8 +280,7 @@ function buildPrintControls(){
   box.innerHTML=opts+
     '<button class="btn ghost" id="savePdf" type="button">Save ballot as PDF</button>'+
     '<div style="margin-top:18px;text-align:left;max-width:420px;margin-left:auto;margin-right:auto">'+
-      '<div class="small" style="margin-bottom:6px">Email the signed ballot to:</div>'+
-      '<input type="text" id="toEmail" class="ink" style="width:100%;margin-bottom:8px" value="'+RECIPIENT+'">'+
+      '<div class="small" style="margin-bottom:6px">Email the signed ballot to <b>'+esc(RECIPIENT)+'</b>:</div>'+
       '<input type="text" id="ccEmail" class="ink" style="width:100%;margin-bottom:10px" placeholder="your email (optional — get a copy)">'+
       '<button class="btn" id="emailBtn" type="button">Save &amp; Email ballot</button>'+
       '<div id="emailStatus" class="small" style="margin-top:8px"></div>'+
@@ -304,14 +303,13 @@ async function saveAsPdf(){
 
 async function emailBallot(){
   const st=$('emailStatus');const btn=$('emailBtn');
-  const to=$('toEmail').value.trim();const cc=$('ccEmail').value.trim();
-  if(!to){st.textContent='Enter a recipient email.';return;}
+  const cc=$('ccEmail').value.trim();
   btn.disabled=true;btn.textContent='Sending…';st.textContent='Building and sending ballot…';
   try{
-    const units=targetUnits();
+    const units=lastUnits; // email always sends the full submission
     const doc=await buildDoc(units);
     const b64=doc.output('datauristring').split(',')[1];
-    const r=await apiPost({action:'email',to:to,cc:cc,name:lastName,units:units,
+    const r=await apiPost({action:'email',submissionId:lastSubmissionId,cc:cc,
                            filename:'Mountain-Green-Ballot-'+lastName.replace(/\s+/g,'-')+'.pdf',pdfBase64:b64});
     if(r.ok){st.innerHTML='&#10003; Ballot emailed to <b>'+esc(r.to)+'</b>'+(cc?' (copy to '+esc(cc)+')':'')+'.';}
     else{st.textContent='Email failed: '+(r.error||'unknown error');}
