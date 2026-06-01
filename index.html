@@ -84,7 +84,6 @@
       <ol class="instr" type="A">
         <li>Place an &ldquo;X&rdquo; on the blank line next to the candidates you want to vote for.</li>
         <li>Complete the section of the ballot identifying yourself and the unit(s) that you own.</li>
-        <li>Sign the ballot.</li>
         <li>Please know that ONLY one ballot for each unit will be accepted for counting, regardless of the number of owners for any given unit. If two ballots are received that are inconsistent with each other, both ballots will be invalidated.</li>
         <li>Click <b>&ldquo;Cast My Ballot&rdquo;</b> below to submit your vote. Votes must be cast no later than June 6th @ 2:00PM to be counted.</li>
       </ol>
@@ -107,12 +106,6 @@
       <div class="unit-extra">
         <div id="extraUnits"></div>
         <button class="addUnit" id="addUnit" type="button">+ I own another unit</button>
-      </div>
-
-      <div class="sigblock">
-        <div class="sigwrap"><canvas id="sig"></canvas></div>
-        <div class="siglabel">Signature of Unit Owner</div>
-        <button class="clearSig" id="clearSig" type="button">Clear signature</button>
       </div>
 
       <div class="actions">
@@ -170,18 +163,6 @@ $('addUnit').onclick=()=>{
   div.querySelector('.rmUnit').onclick=()=>div.remove();
 };
 
-/* ---- signature pad ---- */
-const canvas=$('sig'),ctx=canvas.getContext('2d');let drawing=false,hasSig=false;
-function fitCanvas(){const r=canvas.getBoundingClientRect();const tmp=hasSig?canvas.toDataURL():null;canvas.width=r.width;canvas.height=90;ctx.lineWidth=2.2;ctx.lineCap='round';ctx.strokeStyle='#13315c';if(tmp){const i=new Image();i.onload=()=>ctx.drawImage(i,0,0,canvas.width,canvas.height);i.src=tmp;}}
-function pos(e){const r=canvas.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};}
-function start(e){drawing=true;hasSig=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();}
-function move(e){if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();}
-function end(){drawing=false;}
-canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',move);window.addEventListener('mouseup',end);
-canvas.addEventListener('touchstart',start,{passive:false});canvas.addEventListener('touchmove',move,{passive:false});canvas.addEventListener('touchend',end);
-$('clearSig').onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);hasSig=false;};
-setTimeout(fitCanvas,50);window.addEventListener('resize',fitCanvas);
-
 /* ---- API ---- */
 async function apiPost(p){const r=await fetch(API_URL,{method:'POST',body:JSON.stringify(p)});return r.json();}
 async function apiResults(){const r=await fetch(API_URL+'?action=results');return r.json();}
@@ -197,12 +178,10 @@ async function castBallot(){
   if(votes.length!==MAX_VOTES) return showMsg('Please place an X next to exactly two candidates.','err');
   if(!name)             return showMsg('Please print your name.','err');
   if(!uniqUnits.length) return showMsg('Please enter at least one unit number.','err');
-  if(!hasSig)           return showMsg('Please sign the ballot.','err');
 
-  const sig=canvas.toDataURL('image/png');
   const btn=$('submit');btn.disabled=true;btn.textContent='Casting…';
   try{
-    const r=await apiPost({action:'submit',name:name,units:uniqUnits,votes:votes,signature:sig});
+    const r=await apiPost({action:'submit',name:name,units:uniqUnits,votes:votes,signature:''});
     if(!r.ok){btn.disabled=false;btn.textContent='Cast My Ballot';let m=r.error||'Submission failed.';if(r.rejected&&r.rejected.length)m+=' Unit(s) already voted: '+r.rejected.join(', ');return showMsg(m,'err');}
     let note='Vote cast for unit(s): <b>'+r.accepted.join(', ')+'</b>.';
     if(r.rejected&&r.rejected.length)note+=' Skipped (already voted): '+r.rejected.join(', ')+'.';
