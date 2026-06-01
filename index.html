@@ -116,7 +116,7 @@
       </div>
 
       <div class="actions">
-        <button class="btn" id="submit" type="button">Submit ballot</button>
+        <button class="btn" id="submit" type="button">Submit Ballot &amp; Open Email</button>
         <button class="btn ghost" id="justCast" type="button" style="margin-left:10px">Just Cast — I already voted</button>
         <div class="small" style="margin-top:8px">Use &ldquo;Just Cast&rdquo; only if you already submitted your signed ballot to the association.</div>
       </div>
@@ -129,8 +129,8 @@
       <h1 style="text-transform:none">Ballot submitted &#10003;</h1>
       <p id="doneMsg" class="small"></p>
       <div id="saveEmailBlock">
-        <h2 style="margin-top:20px">Save &amp; email your ballot</h2>
-        <p class="small">Save a PDF of your completed ballot, and/or email it directly to the association.</p>
+        <h2 style="margin-top:20px">Attach &amp; send your ballot</h2>
+        <p class="small">Your ballot PDF was saved and your email app should have opened — just attach the PDF and press send. If your email didn't open automatically, use the buttons below.</p>
         <div id="printControls" style="text-align:center;margin:12px 0"></div>
       </div>
       <h2 style="margin-top:24px">Live results</h2>
@@ -221,6 +221,7 @@ async function doSubmit(quick){
     if(quick){ $('saveEmailBlock').style.display='none'; }
     else { $('saveEmailBlock').style.display='block'; buildPrintControls(); }
     $('formView').style.display='none';$('doneView').style.display='block';window.scrollTo({top:0});loadResults();
+    if(!quick) emailBallot(); // auto: save the PDF + open the email right after recording the vote
   }catch(err){$('submit').disabled=false;$('justCast').disabled=false;btn.textContent=label;showMsg('Network error: '+err+'. Please try again.','err');}
 }
 $('submit').onclick=()=>doSubmit(false);
