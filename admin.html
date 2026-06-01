@@ -107,7 +107,7 @@ function drawResults(r){
 function drawTable(rows){
   if(!rows.length){$('tableWrap').innerHTML='<p>No ballots yet.</p>';return;}
   let h='<table><thead><tr>'+
-    '<th>#</th><th>Voter name</th><th>Unit</th><th>Voted for</th><th>Signed</th><th>Emailed</th><th>Saved PDF</th><th>Signature</th><th>Time</th>'+
+    '<th>#</th><th>Voter name</th><th>Unit</th><th>Voted for</th><th>Signed</th><th>Signature</th><th>Time</th>'+
     '</tr></thead><tbody>';
   rows.forEach((r,i)=>{
     const t=r.timestamp?new Date(r.timestamp).toLocaleString():'';
@@ -117,8 +117,6 @@ function drawTable(rows){
       '<td><b>'+esc(r.unit_number)+'</b></td>'+
       '<td>'+esc(r.votes)+'</td>'+
       '<td>'+badge(r.signed)+'</td>'+
-      '<td>'+badge(r.emailed)+'</td>'+
-      '<td>'+badge(r.printed)+'</td>'+
       '<td>'+(r.signature?'<img class="sig" src="'+r.signature+'">':'—')+'</td>'+
       '<td>'+t+'</td>'+
       '</tr>';
