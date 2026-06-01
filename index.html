@@ -289,10 +289,9 @@ function buildPrintControls(){
     : '';
   box.innerHTML=opts+
     '<button class="btn ghost" id="savePdf" type="button">Save ballot as PDF</button>'+
-    '<div style="margin-top:18px;text-align:left;max-width:420px;margin-left:auto;margin-right:auto">'+
-      '<div class="small" style="margin-bottom:6px">Email the signed ballot to <b>'+esc(RECIPIENT)+'</b>:</div>'+
-      '<input type="text" id="ccEmail" class="ink" style="width:100%;margin-bottom:10px" placeholder="your email (optional — get a copy)">'+
-      '<button class="btn" id="emailBtn" type="button">Save &amp; Email ballot</button>'+
+    '<div style="margin-top:18px;text-align:left;max-width:460px;margin-left:auto;margin-right:auto">'+
+      '<div class="small" style="margin-bottom:8px">Or email your signed ballot to <b>'+esc(RECIPIENT)+'</b> from your own email. The button below saves your ballot PDF and opens your email app — just <b>attach the saved PDF</b> and press send.</div>'+
+      '<button class="btn" id="emailBtn" type="button">Save PDF &amp; open email</button>'+
       '<div id="emailStatus" class="small" style="margin-top:8px"></div>'+
     '</div>';
   $('savePdf').onclick=saveAsPdf;
@@ -313,19 +312,20 @@ async function saveAsPdf(){
 }
 
 async function emailBallot(){
-  const st=$('emailStatus');const btn=$('emailBtn');
-  const cc=$('ccEmail').value.trim();const sb=$('savePdf');
-  btn.disabled=true;if(sb)sb.disabled=true;btn.textContent='Sending…';st.textContent='Building and sending ballot… this can take up to a minute, please wait.';
+  const st=$('emailStatus');const btn=$('emailBtn');const sb=$('savePdf');
+  btn.disabled=true;if(sb)sb.disabled=true;btn.textContent='Preparing…';st.textContent='Building your ballot PDF…';
   try{
-    const units=lastUnits; // email always sends the full submission
+    const units=lastUnits; // email covers the full submission
     const doc=await buildDoc(units);
-    const b64=doc.output('datauristring').split(',')[1];
-    const r=await apiPost({action:'email',submissionId:lastSubmissionId,cc:cc,
-                           filename:'Mountain-Green-Ballot-'+lastName.replace(/\s+/g,'-')+'.pdf',pdfBase64:b64});
-    if(r.ok){st.innerHTML='&#10003; Ballot emailed to <b>'+esc(r.to)+'</b>'+(cc?' (copy to '+esc(cc)+')':'')+'.';btn.textContent='Emailed ✓';return;}
-    else{st.textContent='Email failed: '+(r.error||'unknown error');}
-  }catch(e){st.textContent='Email error: '+e;}
-  btn.disabled=false;if(sb)sb.disabled=false;btn.textContent='Save & Email ballot';
+    doc.save('Mountain-Green-Ballot-'+lastName.replace(/\s+/g,'-')+'.pdf');
+    try{apiPost({action:'markEmailed',units:units});}catch(e){}
+    const subject=encodeURIComponent('Mountain Green Absentee Ballot — '+lastName+' — Unit(s) '+units.join(', '));
+    const body=encodeURIComponent('Attached is my completed absentee ballot for the 2026 Mountain Green Condominium election of directors.\n\nOwner: '+lastName+'\nUnit(s): '+units.join(', ')+'\n\nIMPORTANT: please attach the ballot PDF that just downloaded to your device before sending.');
+    setTimeout(()=>{location.href='mailto:'+RECIPIENT+'?subject='+subject+'&body='+body;},500);
+    st.innerHTML='&#10003; Your ballot PDF was saved. Your email app should open addressed to <b>'+esc(RECIPIENT)+'</b> — <b>attach the saved PDF</b> and press send.';
+    btn.textContent='Email opened ✓';return;
+  }catch(e){st.textContent='Error: '+e;}
+  btn.disabled=false;if(sb)sb.disabled=false;btn.textContent='Save PDF & open email';
 }
 </script>
 </body>
